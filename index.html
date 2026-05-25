@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGAF - Portal de Autogestión Ciudadana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Configuración de Tailwind para activar el Modo Oscuro por clase
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 font-sans text-gray-800 dark:text-gray-200 transition-colors duration-300">
+
+    <header class="bg-[#0f2c59] text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <svg aria-hidden="true" class="h-12 w-12 mr-3" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10,10 L90,10 L90,70 C90,85 50,100 50,100 C50,100 10,85 10,70 Z" fill="#d52b1e"/>
+                    <path d="M10,10 L50,10 L50,100 C50,100 10,85 10,70 Z" fill="#0039a6"/>
+                    <polygon points="50,25 56,40 72,40 59,50 64,65 50,55 36,65 41,50 28,40 44,40" fill="#ffffff"/>
+                </svg>
+                <div class="border-l border-gray-400 pl-3">
+                    <h1 class="text-lg font-bold tracking-wide leading-tight">Aduanas de Chile</h1>
+                    <p class="text-[10px] text-gray-300 uppercase tracking-widest">Gobierno de Chile</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <span class="bg-blue-800 text-xs px-3 py-1 rounded-full border border-blue-400 shadow-sm hidden md:block">SGAF - Paso Los Libertadores</span>
+                
+                <button onclick="toggleDarkMode()" aria-label="Alternar modo de contraste" class="p-2 bg-blue-800 hover:bg-blue-700 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-white">
+                    <svg aria-hidden="true" id="icon-sun" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 4.22a1 1 0 011.415 0l.708.708a1 1 0 01-1.414 1.414l-.708-.708a1 1 0 010-1.414zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zm-4.22 4.22a1 1 0 010 1.415l-.708.708a1 1 0 01-1.414-1.414l.708-.708a1 1 0 011.414 0zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4.22-4.22a1 1 0 01-1.415 0l-.708-.708a1 1 0 011.414-1.414l.708.708a1 1 0 010 1.414zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zm4.22-4.22a1 1 0 010-1.415l.708-.708a1 1 0 011.414 1.414l-.708.708a1 1 0 01-1.414 0zM10 4a6 6 0 100 12 6 6 0 000-12z" clip-rule="evenodd"></path></svg>
+                    <svg aria-hidden="true" id="icon-moon" class="w-5 h-5 block" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto my-8 max-w-3xl p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-200 dark:border-gray-700 transition-colors duration-300">
+            <h2 class="text-2xl font-bold text-[#0f2c59] dark:text-blue-300 mb-4 border-b dark:border-gray-700 pb-2">Formulario Digital Previo de Ingreso</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Complete obligatoriamente sus datos y los de sus acompañantes antes de iniciar el viaje.</p>
+
+            <form id="sgafForm" onsubmit="procesarFormulario(event)" class="space-y-6">
+                
+                <div class="bg-blue-50/50 dark:bg-gray-700/50 p-4 rounded-lg border border-blue-100 dark:border-gray-600">
+                    <h3 class="text-lg font-bold text-[#0f2c59] dark:text-blue-300 mb-3">1. Datos del Viajero Titular</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="nombre" class="block text-sm font-medium mb-1 dark:text-gray-300">Nombre Completo</label>
+                            <input type="text" id="nombre" required aria-required="true" placeholder="Ej: Juan Pérez" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="col-span-1">
+                                <label for="tipoDoc" class="block text-sm font-medium mb-1 dark:text-gray-300">Tipo Doc.</label>
+                                <select id="tipoDoc" class="w-full p-2 border rounded bg-white text-sm outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white" onchange="limpiarErrorRut('rut', 'errorRutTitular')">
+                                    <option value="RUT">RUT</option>
+                                    <option value="PASAPORTE">Pasaporte</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2 relative">
+                                <label for="rut" class="block text-sm font-medium mb-1 dark:text-gray-300">Número de Documento</label>
+                                <input type="text" id="rut" required aria-required="true" aria-describedby="errorRutTitular" placeholder="Ej: 12345678-9" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white" oninput="formatearYValidarRUT(this, 'errorRutTitular', 'tipoDoc')">
+                                <p id="errorRutTitular" aria-live="assertive" class="text-[10px] text-red-600 dark:text-red-400 hidden absolute font-bold -bottom-4">⚠️ RUT Inválido</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="edad" class="block text-sm font-medium mb-1 dark:text-gray-300">Edad</label>
+                            <input type="number" id="edad" required aria-required="true" aria-describedby="seccionMenorTitular" min="1" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white" oninput="verificarEdadTitular(this.value)">
+                        </div>
+                        <div>
+                            <label for="motivo" class="block text-sm font-medium mb-1 dark:text-gray-300">Motivo del Viaje</label>
+                            <select id="motivo" class="w-full p-2 border rounded bg-white outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                                <option value="Turista">Vacaciones / Turismo</option>
+                                <option value="Trabajador">Contrato Laboral / Negocios</option>
+                                <option value="Comerciante">Intercambio comercial lícito</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="seccionMenorTitular" aria-live="polite" class="hidden mt-3 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-3 rounded text-xs transition-opacity">
+                        <p class="font-bold text-red-800 dark:text-red-300 mb-1">❌ Restricción Normativa de Edad</p>
+                        <p class="text-gray-700 dark:text-gray-300">Los menores de 18 años tienen prohibido firmar declaraciones juradas. Registre a un adulto como titular.</p>
+                    </div>
+                </div>
+
+                <div class="border-t dark:border-gray-700 pt-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">2. Pasajeros Acompañantes</h3>
+                        <button type="button" aria-label="Añadir un nuevo pasajero acompañante" onclick="agregarPasajero()" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors shadow focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800">
+                            + Agregar Persona
+                        </button>
+                    </div>
+                    <div id="contenedorPasajeros" aria-live="polite" class="space-y-3"></div>
+                </div>
+
+                <div class="border-t dark:border-gray-700 pt-4">
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">3. Transporte y Vehículo</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="patente" class="block text-sm font-medium mb-1 dark:text-gray-300">Patente del Vehículo (Opcional)</label>
+                            <input type="text" id="patente" placeholder="Ej: AB123CD" class="w-full p-2 border rounded uppercase outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="mascotas" class="block text-sm font-medium mb-1 dark:text-gray-300">¿Transporta Animales?</label>
+                            <select id="mascotas" onchange="evaluarAlertaMascota(this.value)" class="w-full p-2 border rounded bg-white font-semibold outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                                <option value="No">No</option>
+                                <option value="Si">Sí (Requiere Declaración SAG)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="alertaMascotaSag" aria-live="assertive" class="hidden mt-4 bg-emerald-50 dark:bg-emerald-900/30 border-2 border-emerald-500 p-4 rounded-lg flex flex-col md:flex-row items-center gap-4 transition-opacity">
+                        <div aria-hidden="true" class="bg-emerald-600 text-white text-2xl p-2 rounded-full hidden md:block">🐾</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-emerald-900 dark:text-emerald-300 text-sm">Trámite Fitosanitario del SAG Obligatorio</h4>
+                            <p class="text-xs text-emerald-800 dark:text-emerald-200 mt-1">Complete de manera digital su Declaración Jurada para agilizar el aforo.</p>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <a href="https://dj.sag.gob.cl/declaracion-jurada" target="_blank" class="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-3 rounded shadow transition-all focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800">🌐 Ir al Portal Digital SAG</a>
+                                <a href="image_8e2065.png" target="_blank" class="inline-flex items-center gap-1 bg-white dark:bg-gray-800 border border-emerald-600 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-700 text-xs font-bold py-1.5 px-3 rounded shadow transition-all focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800">🔍 Escanear QR del SAG</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t dark:border-gray-700 pt-4 bg-gray-50 dark:bg-gray-700/30 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">4. Carga de Documentación</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="archivoSag" class="block text-xs font-bold uppercase text-gray-600 dark:text-gray-400 mb-1">Declaración Jurada / Archivo Adjunto</label>
+                            <input type="file" id="archivoSag" accept=".pdf, .png, .jpg, .jpeg" class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 dark:file:bg-blue-900 file:text-blue-700 dark:file:text-blue-200 file:cursor-pointer hover:file:bg-blue-100 dark:hover:file:bg-blue-800 transition-colors">
+                        </div>
+                    </div>
+                    <div class="mt-4 border-t dark:border-gray-600 pt-3">
+                        <label for="firmaDigital" class="flex items-center space-x-2 text-sm cursor-pointer">
+                            <input type="checkbox" id="firmaDigital" required aria-required="true" class="rounded text-green-600 focus:ring-green-500 dark:bg-gray-800 dark:border-gray-500">
+                            <span class="text-xs text-gray-700 dark:text-gray-300 font-medium">Firma Electrónica Simple: Declaro que la información es fidedigna y autorizo la validación de antecedentes.</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-[#0f2c59] dark:bg-blue-600 text-white p-3 rounded font-bold hover:bg-blue-900 dark:hover:bg-blue-700 transition-all shadow focus:outline-none focus:ring-4 focus:ring-blue-500 dark:focus:ring-offset-gray-800 focus:ring-opacity-50">
+                    Generar Pase de Frontera QR
+                </button>
+            </form>
+
+            <div id="resultadoSeccion" aria-live="assertive" class="hidden mt-8 border-t-2 border-dashed border-gray-300 dark:border-gray-600 pt-6">
+                
+                <div id="resultadoRechazo" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-900 dark:text-red-200 p-6 rounded-lg flex flex-col items-center text-center shadow-sm">
+                    <svg aria-hidden="true" class="w-16 h-16 text-red-600 dark:text-red-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <h4 class="text-xl font-bold mb-1">Trámite Detenido</h4>
+                    <p id="rechazoMotivo" class="text-sm font-semibold mb-3 text-red-700 dark:text-red-400"></p>
+                    <div class="bg-white dark:bg-gray-800 p-3 rounded border dark:border-gray-700 w-full mt-2">
+                        <p class="text-sm text-gray-700 dark:text-gray-300">El sistema ha detectado una anomalía que impide la emisión automática de su pase.</p>
+                        <p class="text-sm font-bold mt-1 text-[#0f2c59] dark:text-blue-300">Por favor, contáctese con la unidad de control de la PDI.</p>
+                    </div>
+                </div>
+
+                <div id="resultadoExito" class="hidden bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-900 dark:text-green-200 p-6 rounded-lg text-center space-y-4">
+                    <h4 class="text-xl font-bold text-green-800 dark:text-green-400">✅ Autorización Confirmada</h4>
+                    <p class="text-sm">La información ha sido validada exitosamente en el sistema central.</p>
+                    
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded border dark:border-gray-700 text-left max-w-md mx-auto text-xs space-y-1 font-mono text-gray-700 dark:text-gray-300 shadow-sm">
+                        <p><strong>Titular:</strong> <span id="resNombre"></span></p>
+                        <p><strong>Pasajeros Registrados:</strong> <span id="resTotalPasajeros" class="font-bold"></span></p>
+                        <p><strong>Categoría Visa:</strong> <span id="resVisa" class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-1.5 py-0.5 rounded font-bold"></span></p>
+                        <p><strong>Vehículo:</strong> <span id="resPlazo"></span></p>
+                        <p><strong>Control Fitosanitario:</strong> <span id="resAlertaSag"></span></p>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center p-4 bg-white rounded border border-gray-200 inline-block mx-auto shadow-md">
+                        <div id="qrcode" class="p-2 bg-white" aria-label="Código QR generado para control fronterizo"></div>
+                        <span class="text-[10px] text-gray-400 mt-2 font-mono">SGAF-QR VALIDADO</span>
+                        <button onclick="descargarQR()" aria-label="Descargar código QR como imagen" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded shadow transition-all flex items-center gap-1 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <span aria-hidden="true">📥</span> Descargar Pase QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let contadorPasajeros = 0;
+
+        // Lógica del MODO OSCURO
+        function toggleDarkMode() {
+            const htmlTag = document.documentElement;
+            const iconSun = document.getElementById('icon-sun');
+            const iconMoon = document.getElementById('icon-moon');
+            
+            if (htmlTag.classList.contains('dark')) {
+                htmlTag.classList.remove('dark');
+                iconSun.classList.add('hidden');
+                iconMoon.classList.remove('hidden');
+            } else {
+                htmlTag.classList.add('dark');
+                iconSun.classList.remove('hidden');
+                iconMoon.classList.add('hidden');
+            }
+        }
+
+        // Lógicas de Negocio y Accesibilidad
+        function limpiarErrorRut(inputId, errorId) {
+            const errorElement = document.getElementById(errorId);
+            const inputElement = document.getElementById(inputId);
+            errorElement.classList.add('hidden');
+            inputElement.classList.remove('border-red-500', 'dark:border-red-500');
+            inputElement.setAttribute('aria-invalid', 'false');
+        }
+
+        function formatearYValidarRUT(input, errorId, tipoDocId) {
+            const tipoDoc = document.getElementById(tipoDocId).value;
+            const errorElement = document.getElementById(errorId);
+            
+            if (tipoDoc !== "RUT") {
+                limpiarErrorRut(input.id, errorId);
+                return;
+            }
+
+            let valor = input.value.replace(/[^0-9kK]/g, '');
+            if (valor.length > 1) {
+                valor = valor.slice(0, -1) + '-' + valor.slice(-1);
+            }
+            input.value = valor.toUpperCase();
+
+            // Interceptar RUT de prueba
+            if (input.value === "1-9") {
+                limpiarErrorRut(input.id, errorId);
+                return;
+            }
+
+            if (valor.length >= 3) {
+                if (!validarRUTMath(valor)) {
+                    errorElement.classList.remove('hidden');
+                    input.classList.add('border-red-500', 'dark:border-red-500');
+                    input.setAttribute('aria-invalid', 'true');
+                } else {
+                    limpiarErrorRut(input.id, errorId);
+                }
+            } else {
+                limpiarErrorRut(input.id, errorId);
+            }
+        }
+
+        function validarRUTMath(rutCompleto) {
+            if (!/^[0-9]+-[0-9kK]{1}$/.test(rutCompleto)) return false;
+            let tmp = rutCompleto.split('-');
+            let digv = tmp[1].toLowerCase();
+            let rut = tmp[0];
+            let M=0, S=1;
+            for(; rut; rut=Math.floor(rut/10)) S=(S+rut%10*(9-M++%6))%11;
+            let dvCalculado = S ? S-1 : 'k';
+            return dvCalculado == digv;
+        }
+
+        function descargarQR() {
+            const qrImg = document.querySelector('#qrcode img');
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            let url = "";
+            if (qrImg && qrImg.src) url = qrImg.src;
+            else if (qrCanvas) url = qrCanvas.toDataURL("image/png");
+
+            if (url) {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'SGAF-Pase-Fronterizo.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } else {
+                alert("El código QR aún no se ha generado correctamente.");
+            }
+        }
+
+        function evaluarAlertaMascota(valor) {
+            const alertaBox = document.getElementById('alertaMascotaSag');
+            if (valor === "Si") alertaBox.classList.remove('hidden');
+            else alertaBox.classList.add('hidden');
+        }
+
+        function verificarEdadTitular(edad) {
+            const seccion = document.getElementById('seccionMenorTitular');
+            if (edad && parseInt(edad) < 18) seccion.classList.remove('hidden');
+            else seccion.classList.add('hidden');
+        }
+
+        function agregarPasajero() {
+            contadorPasajeros++;
+            const contenedor = document.getElementById('contenedorPasajeros');
+            const div = document.createElement('div');
+            const idDoc = `rut_p_${contadorPasajeros}`;
+            const idTipo = `tipo_p_${contadorPasajeros}`;
+            const idError = `error_p_${contadorPasajeros}`;
+            const idNombre = `nombre_p_${contadorPasajeros}`;
+
+            div.id = `pasajero_${contadorPasajeros}`;
+            div.className = "bg-gray-50 dark:bg-gray-700/30 p-4 rounded border border-gray-200 dark:border-gray-600 relative space-y-3 pt-6";
+            
+            div.innerHTML = `
+                <button type="button" aria-label="Quitar pasajero" onclick="document.getElementById('pasajero_${contadorPasajeros}').remove()" class="absolute top-2 right-3 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-red-500">✕ Quitar</button>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                    <div class="col-span-2">
+                        <label for="${idNombre}" class="block text-xs font-medium mb-0.5 dark:text-gray-300">Nombre Acompañante</label>
+                        <input type="text" id="${idNombre}" required aria-required="true" class="p-1.5 text-xs border rounded w-full input-p-nombre dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="col-span-1">
+                        <label for="${idTipo}" class="block text-xs font-medium mb-0.5 dark:text-gray-300">Tipo Doc.</label>
+                        <select id="${idTipo}" class="p-1.5 text-xs border rounded w-full input-p-tipo dark:bg-gray-800 dark:border-gray-600 dark:text-white" onchange="limpiarErrorRut('${idDoc}', '${idError}')">
+                            <option value="RUT">RUT</option>
+                            <option value="PASAPORTE">Pasaporte</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1 relative">
+                        <label for="${idDoc}" class="block text-xs font-medium mb-0.5 dark:text-gray-300">Documento</label>
+                        <input type="text" id="${idDoc}" required aria-required="true" aria-describedby="${idError}" class="p-1.5 text-xs border rounded w-full input-p-rut dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" oninput="formatearYValidarRUT(this, '${idError}', '${idTipo}')">
+                        <p id="${idError}" aria-live="assertive" class="text-[10px] text-red-600 dark:text-red-400 hidden absolute font-bold -bottom-4">Inválido</p>
+                    </div>
+                </div>
+            `;
+            contenedor.appendChild(div);
+        }
+
+        function procesarFormulario(event) {
+            event.preventDefault();
+
+            const nombre = document.getElementById('nombre').value;
+            const tipoDoc = document.getElementById('tipoDoc').value;
+            const rutInput = document.getElementById('rut');
+            const rut = rutInput.value.trim();
+            const edad = parseInt(document.getElementById('edad').value);
+            const motivo = document.getElementById('motivo').value;
+            const patente = document.getElementById('patente').value.trim();
+            const mascotas = document.getElementById('mascotas').value;
+            
+            const resultadoSeccion = document.getElementById('resultadoSeccion');
+            const resultadoRechazo = document.getElementById('resultadoRechazo');
+            const resultadoExito = document.getElementById('resultadoExito');
+            const qrcodeDiv = document.getElementById('qrcode');
+
+            resultadoSeccion.classList.remove('hidden');
+            resultadoRechazo.classList.add('hidden');
+            resultadoExito.classList.add('hidden');
+            
+            while (qrcodeDiv.firstChild) {
+                qrcodeDiv.removeChild(qrcodeDiv.firstChild);
+            }
+
+            // Validaciones al enviar
+            if (edad < 18) {
+                resultadoRechazo.classList.remove('hidden');
+                document.getElementById('rechazoMotivo').innerText = "Infracción Normativa: El titular de la declaración jurada debe ser mayor de edad.";
+                return;
+            }
+
+            if (rut === "1-9") {
+                resultadoRechazo.classList.remove('hidden');
+                document.getElementById('rechazoMotivo').innerText = "Resolución de Control Interinstitucional: El documento ingresado registra una alerta o restricción de tránsito internacional vigente.";
+                return;
+            }
+
+            if (tipoDoc === "RUT") {
+                if (!validarRUTMath(rut)) {
+                    resultadoRechazo.classList.remove('hidden');
+                    document.getElementById('rechazoMotivo').innerText = "Error de Validación: El número de documento de identidad ingresado no es válido.";
+                    rutInput.classList.add('border-red-500', 'dark:border-red-500');
+                    return;
+                }
+            }
+
+            const acompañantes = [];
+            const nodosAcompañantes = document.getElementById('contenedorPasajeros').children;
+
+            for (let nodo of nodosAcompañantes) {
+                const pNombre = nodo.querySelector('.input-p-nombre').value;
+                const pTipo = nodo.querySelector('.input-p-tipo').value;
+                const pRutInput = nodo.querySelector('.input-p-rut');
+                const pRut = pRutInput.value.trim();
+
+                if (pRut === "1-9") {
+                    resultadoRechazo.classList.remove('hidden');
+                    document.getElementById('rechazoMotivo').innerText = `Resolución de Control Interinstitucional: El acompañante (${pNombre}) registra una restricción de tránsito vigente.`;
+                    return;
+                }
+
+                if (pTipo === "RUT") {
+                    if (!validarRUTMath(pRut)) {
+                        resultadoRechazo.classList.remove('hidden');
+                        document.getElementById('rechazoMotivo').innerText = `Error de Validación: El documento de identidad del acompañante (${pNombre}) no es válido.`;
+                        pRutInput.classList.add('border-red-500', 'dark:border-red-500');
+                        return;
+                    }
+                }
+                acompañantes.push({ nombre: pNombre, doc: pRut });
+            }
+
+            // ÉXITO
+            resultadoExito.classList.remove('hidden');
+            document.getElementById('resNombre').innerText = nombre;
+            document.getElementById('resTotalPasajeros').innerText = 1 + acompañantes.length;
+            document.getElementById('resVisa').innerText = `Visa de ${motivo}`;
+
+            if (patente !== "") {
+                document.getElementById('resPlazo').innerText = motivo === "Trabajador" ? "Admitido (90 Días)" : "Admitido (180 Días)";
+            } else {
+                document.getElementById('resPlazo').innerText = "No aplica";
+            }
+
+            if (mascotas === "Si") {
+                document.getElementById('resAlertaSag').innerText = "Revisión Fitosanitaria Requerida";
+                document.getElementById('resAlertaSag').className = "text-amber-600 dark:text-amber-400 font-bold";
+            } else {
+                document.getElementById('resAlertaSag').innerText = "Liberado";
+                document.getElementById('resAlertaSag').className = "text-green-600 dark:text-green-400 font-semibold";
+            }
+
+            setTimeout(() => {
+                const dataQR = JSON.stringify({
+                    id_trx: "SGAF-V3-" + Math.floor(1000 + Math.random() * 9000),
+                    titular: rut,
+                    total: 1 + acompañantes.length,
+                    sag: mascotas === "Si" ? "SI" : "NO"
+                });
+
+                new QRCode(qrcodeDiv, {
+                    text: dataQR,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#0f2c59",
+                    colorLight : "#ffffff", // Siempre blanco para el QR
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+            }, 100);
+        }
+    </script>
+</body>
+</html>
