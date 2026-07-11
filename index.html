@@ -117,12 +117,21 @@
 
                     <div id="alertaMascotaSag" aria-live="assertive" class="hidden mt-4 bg-emerald-50 dark:bg-emerald-900/30 border-2 border-emerald-500 p-4 rounded-lg flex flex-col md:flex-row items-center gap-4 transition-opacity">
                         <div aria-hidden="true" class="bg-emerald-600 text-white text-2xl p-2 rounded-full hidden md:block">🐾</div>
-                        <div class="flex-1">
+                        <div class="flex-1 w-full">
                             <h4 class="font-bold text-emerald-900 dark:text-emerald-300 text-sm">Trámite Fitosanitario del SAG Obligatorio</h4>
-                            <p class="text-xs text-emerald-800 dark:text-emerald-200 mt-1">Complete de manera digital su Declaración Jurada para agilizar el aforo.</p>
-                            <div class="flex flex-wrap gap-2 mt-3">
-                                <a href="https://dj.sag.gob.cl/declaracion-jurada" target="_blank" class="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-3 rounded shadow transition-all focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800">🌐 Ir al Portal Digital SAG</a>
-                                <a href="image_8e2065.png" target="_blank" class="inline-flex items-center gap-1 bg-white dark:bg-gray-800 border border-emerald-600 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-700 text-xs font-bold py-1.5 px-3 rounded shadow transition-all focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800">🔍 Escanear QR del SAG</a>
+                            <p class="text-xs text-emerald-800 dark:text-emerald-200 mt-1">La app validará automáticamente su declaración para agilizar el control de aduanas.</p>
+                            
+                            <div class="flex flex-col gap-2 mt-3">
+                                <div class="flex flex-wrap gap-2">
+                                    <a href="https://dj.sag.gob.cl/declaracion-jurada" target="_blank" class="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-3 rounded shadow transition-all focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800">🌐 Ir al Portal Digital SAG</a>
+                                    <button type="button" onclick="mostrarCampoQR()" class="inline-flex items-center gap-1 bg-white dark:bg-gray-800 border border-emerald-600 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-700 text-xs font-bold py-1.5 px-3 rounded shadow transition-all focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 dark:focus:ring-offset-gray-800">📥 Ingrese Código QR SAG</button>
+                                </div>
+                                
+                                <div id="contenedorInputQR" class="hidden mt-2 bg-white dark:bg-gray-800 p-3 rounded border border-emerald-300 dark:border-emerald-700">
+                                    <label for="imagenQrSag" class="block text-xs font-bold text-emerald-800 dark:text-emerald-300 mb-1">Cargue la imagen de su código QR del SAG:</label>
+                                    <input type="file" id="imagenQrSag" accept="image/*" capture="environment" class="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 dark:file:bg-emerald-900 file:text-emerald-700 dark:file:text-emerald-200 file:cursor-pointer hover:file:bg-emerald-100 dark:hover:file:bg-emerald-800 transition-colors outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-1">El sistema validará la imagen adjunta automáticamente.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -191,7 +200,6 @@
     <script>
         let contadorPasajeros = 0;
 
-        // Lógica del MODO OSCURO
         function toggleDarkMode() {
             const htmlTag = document.documentElement;
             const iconSun = document.getElementById('icon-sun');
@@ -208,7 +216,6 @@
             }
         }
 
-        // Lógicas de Negocio y Accesibilidad
         function limpiarErrorRut(inputId, errorId) {
             const errorElement = document.getElementById(errorId);
             const inputElement = document.getElementById(inputId);
@@ -232,7 +239,6 @@
             }
             input.value = valor.toUpperCase();
 
-            // Interceptar RUT de prueba
             if (input.value === "1-9") {
                 limpiarErrorRut(input.id, errorId);
                 return;
@@ -287,10 +293,31 @@
             else alertaBox.classList.add('hidden');
         }
 
+        function mostrarCampoQR() {
+            const contenedor = document.getElementById('contenedorInputQR');
+            contenedor.classList.toggle('hidden');
+            if (!contenedor.classList.contains('hidden')) {
+                document.getElementById('imagenQrSag').focus();
+            }
+        }
+
         function verificarEdadTitular(edad) {
             const seccion = document.getElementById('seccionMenorTitular');
             if (edad && parseInt(edad) < 18) seccion.classList.remove('hidden');
             else seccion.classList.add('hidden');
+        }
+
+        function verificarEdadAcompañante(edad, idSeccionConsentimiento) {
+            const seccion = document.getElementById(idSeccionConsentimiento);
+            const inputArchivo = seccion.querySelector('input[type="file"]');
+            
+            if (edad && parseInt(edad) < 18) {
+                seccion.classList.remove('hidden');
+                inputArchivo.setAttribute('aria-required', 'true');
+            } else {
+                seccion.classList.add('hidden');
+                inputArchivo.setAttribute('aria-required', 'false');
+            }
         }
 
         function agregarPasajero() {
@@ -301,29 +328,42 @@
             const idTipo = `tipo_p_${contadorPasajeros}`;
             const idError = `error_p_${contadorPasajeros}`;
             const idNombre = `nombre_p_${contadorPasajeros}`;
+            const idEdad = `edad_p_${contadorPasajeros}`;
+            const idConsentimiento = `consentimiento_p_${contadorPasajeros}`;
 
             div.id = `pasajero_${contadorPasajeros}`;
             div.className = "bg-gray-50 dark:bg-gray-700/30 p-4 rounded border border-gray-200 dark:border-gray-600 relative space-y-3 pt-6";
             
             div.innerHTML = `
                 <button type="button" aria-label="Quitar pasajero" onclick="document.getElementById('pasajero_${contadorPasajeros}').remove()" class="absolute top-2 right-3 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-red-500">✕ Quitar</button>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
-                    <div class="col-span-2">
+                
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-2">
+                    <div class="col-span-1 md:col-span-4">
                         <label for="${idNombre}" class="block text-xs font-medium mb-0.5 dark:text-gray-300">Nombre Acompañante</label>
                         <input type="text" id="${idNombre}" required aria-required="true" class="p-1.5 text-xs border rounded w-full input-p-nombre dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
-                    <div class="col-span-1">
+                    <div class="col-span-1 md:col-span-2">
+                        <label for="${idEdad}" class="block text-xs font-medium mb-0.5 dark:text-gray-300">Edad</label>
+                        <input type="number" id="${idEdad}" required aria-required="true" min="0" class="p-1.5 text-xs border rounded w-full input-p-edad dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" oninput="verificarEdadAcompañante(this.value, '${idConsentimiento}')">
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
                         <label for="${idTipo}" class="block text-xs font-medium mb-0.5 dark:text-gray-300">Tipo Doc.</label>
                         <select id="${idTipo}" class="p-1.5 text-xs border rounded w-full input-p-tipo dark:bg-gray-800 dark:border-gray-600 dark:text-white" onchange="limpiarErrorRut('${idDoc}', '${idError}')">
                             <option value="RUT">RUT</option>
                             <option value="PASAPORTE">Pasaporte</option>
                         </select>
                     </div>
-                    <div class="col-span-1 relative">
+                    <div class="col-span-1 md:col-span-4 relative">
                         <label for="${idDoc}" class="block text-xs font-medium mb-0.5 dark:text-gray-300">Documento</label>
                         <input type="text" id="${idDoc}" required aria-required="true" aria-describedby="${idError}" class="p-1.5 text-xs border rounded w-full input-p-rut dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" oninput="formatearYValidarRUT(this, '${idError}', '${idTipo}')">
                         <p id="${idError}" aria-live="assertive" class="text-[10px] text-red-600 dark:text-red-400 hidden absolute font-bold -bottom-4">Inválido</p>
                     </div>
+                </div>
+                
+                <div id="${idConsentimiento}" aria-live="polite" class="hidden mt-3 bg-amber-50 dark:bg-amber-900/30 border-l-4 border-amber-500 p-3 rounded text-xs transition-opacity">
+                    <p class="font-bold text-amber-800 dark:text-amber-300 mb-1">⚠️ Acompañante Menor de Edad</p>
+                    <p class="text-gray-700 dark:text-gray-300 mb-2">Es obligatorio adjuntar el permiso notarial o libreta de familia correspondiente.</p>
+                    <input type="file" accept=".pdf, .png, .jpg, .jpeg" class="block w-full text-xs text-gray-500 dark:text-gray-400 file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:font-semibold file:bg-amber-100 dark:file:bg-amber-800 file:text-amber-700 dark:file:text-amber-200 file:cursor-pointer hover:file:bg-amber-200 dark:hover:file:bg-amber-700 transition-colors input-p-consentimiento">
                 </div>
             `;
             contenedor.appendChild(div);
@@ -341,6 +381,9 @@
             const patente = document.getElementById('patente').value.trim();
             const mascotas = document.getElementById('mascotas').value;
             
+            const inputImagenQr = document.getElementById('imagenQrSag');
+            const archivoQrCargado = inputImagenQr && inputImagenQr.files.length > 0;
+            
             const resultadoSeccion = document.getElementById('resultadoSeccion');
             const resultadoRechazo = document.getElementById('resultadoRechazo');
             const resultadoExito = document.getElementById('resultadoExito');
@@ -354,7 +397,6 @@
                 qrcodeDiv.removeChild(qrcodeDiv.firstChild);
             }
 
-            // Validaciones al enviar
             if (edad < 18) {
                 resultadoRechazo.classList.remove('hidden');
                 document.getElementById('rechazoMotivo').innerText = "Infracción Normativa: El titular de la declaración jurada debe ser mayor de edad.";
@@ -381,9 +423,19 @@
 
             for (let nodo of nodosAcompañantes) {
                 const pNombre = nodo.querySelector('.input-p-nombre').value;
+                const pEdad = parseInt(nodo.querySelector('.input-p-edad').value);
                 const pTipo = nodo.querySelector('.input-p-tipo').value;
                 const pRutInput = nodo.querySelector('.input-p-rut');
                 const pRut = pRutInput.value.trim();
+                const pConsentimientoFile = nodo.querySelector('.input-p-consentimiento');
+
+                if (pEdad < 18) {
+                    if (!pConsentimientoFile.files || pConsentimientoFile.files.length === 0) {
+                        resultadoRechazo.classList.remove('hidden');
+                        document.getElementById('rechazoMotivo').innerText = `Falta Documentación: Debe adjuntar el permiso notarial para el menor de edad (${pNombre}).`;
+                        return;
+                    }
+                }
 
                 if (pRut === "1-9") {
                     resultadoRechazo.classList.remove('hidden');
@@ -399,10 +451,9 @@
                         return;
                     }
                 }
-                acompañantes.push({ nombre: pNombre, doc: pRut });
+                acompañantes.push({ nombre: pNombre, doc: pRut, edad: pEdad });
             }
 
-            // ÉXITO
             resultadoExito.classList.remove('hidden');
             document.getElementById('resNombre').innerText = nombre;
             document.getElementById('resTotalPasajeros').innerText = 1 + acompañantes.length;
@@ -415,7 +466,7 @@
             }
 
             if (mascotas === "Si") {
-                document.getElementById('resAlertaSag').innerText = "Revisión Fitosanitaria Requerida";
+                document.getElementById('resAlertaSag').innerText = "Declaración Registrada";
                 document.getElementById('resAlertaSag').className = "text-amber-600 dark:text-amber-400 font-bold";
             } else {
                 document.getElementById('resAlertaSag').innerText = "Liberado";
@@ -423,11 +474,13 @@
             }
 
             setTimeout(() => {
+                const estadoSag = mascotas === "Si" ? (archivoQrCargado ? "SAG_VALIDADO_POR_IMAGEN" : "PENDIENTE") : "NO";
+
                 const dataQR = JSON.stringify({
                     id_trx: "SGAF-V3-" + Math.floor(1000 + Math.random() * 9000),
                     titular: rut,
                     total: 1 + acompañantes.length,
-                    sag: mascotas === "Si" ? "SI" : "NO"
+                    sag: estadoSag
                 });
 
                 new QRCode(qrcodeDiv, {
@@ -435,7 +488,7 @@
                     width: 200,
                     height: 200,
                     colorDark : "#0f2c59",
-                    colorLight : "#ffffff", // Siempre blanco para el QR
+                    colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.M
                 });
             }, 100);
